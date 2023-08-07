@@ -1,6 +1,8 @@
 ﻿using API.Data;
 using API.Enums;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System.Linq;
 using System.Security.Claims;
@@ -39,15 +41,21 @@ namespace API.CustomAttribute
 
                 var listRegRole = dbContext.RegistrationRole.Where(x => x.UserID == userID).ToList();
 
-                if (listRegRole.Count() > 1)
+                if (listRegRole.Count() > 0)
                 {
-                    if (listRoles.Length != 0)
+                    if (listRoles != null)
                     {
                         foreach (var role in listRoles)
                         {
                             if (!listRegRole.Any(x => x.RoleID == (int)role))
                             {
-                                return;
+                                context.Result = new JsonResult(new
+                                {
+                                    Message = "Request Access Denied"
+                                })
+                                {
+                                    StatusCode = StatusCodes.Status401Unauthorized
+                                };
                             }
 
                         }
@@ -56,7 +64,13 @@ namespace API.CustomAttribute
 
                     if (!listRegRole.Any(x => x.RoleID == (int)role))
                     {
-                        return;
+                        context.Result = new JsonResult(new
+                        {
+                            Message = "Request Access Denied"
+                        })
+                        {
+                            StatusCode = StatusCodes.Status401Unauthorized
+                        };
                     }
 
                 }
@@ -65,5 +79,6 @@ namespace API.CustomAttribute
             }
                 
         }
+
     }
 }

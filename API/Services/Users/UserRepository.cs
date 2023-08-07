@@ -2,6 +2,7 @@
 using API.Data;
 using API.Dto.Auth;
 using API.Entities.Auth;
+using API.Helper;
 using API.Services.Auth;
 using AutoMapper;
 using Dapper;
@@ -107,6 +108,8 @@ namespace API.Services.Users
                 {
                     return new UserDto(); ;
                 }
+
+                registration.Password = AESEncryption.Encrypt(registration.Password);
 
                 _mapper.Map(registration, reg);
                 await _appDbContext.SaveChangesAsync();
