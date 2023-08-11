@@ -1,5 +1,7 @@
 using API.Data;
 using API.Services.Auth;
+using API.Services.Firebase;
+using API.Services.RoboFlow;
 using API.Services.Users;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -38,6 +40,8 @@ namespace API
             //Services API
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IRoboFlowService, RoboFlowService>();
+            services.AddScoped<IFirebaseService, FirebaseService>();
             #endregion Service API
 
             services.AddControllers();
