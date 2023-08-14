@@ -1,11 +1,8 @@
-﻿using API.Common.ReponseDto;
-using API.CustomAttribute;
-using API.Dto.Auth;
-using API.Entities.Auth;
+﻿using API.CustomAttribute;
+using API.Dto.Catalog;
 using API.Enums;
-using API.Services.Users;
+using API.Services.Catalog;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -16,25 +13,25 @@ namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    
-    public class UserController : ControllerBase
+    [Authorize]
+    public class RoboModelController : ControllerBase
     {
-        private readonly IUserRepository _userRepository;
-        public UserController(IUserRepository userRepository)
+        private readonly IModelRepository _modelRepository;
+        public RoboModelController(IModelRepository modelRepository)
         {
-            _userRepository = userRepository;
+            _modelRepository = modelRepository;
         }
         // GET: UserController
 
-       
+
         [HttpGet("Details/{id}")]
         // GET: UserController/Details/5
         public async Task<ActionResult> Details(int id)
         {
             try
             {
-                var user = await _userRepository.GetUserById(id);
-                return Ok(user);
+                var model = await _modelRepository.GetModelById(id);
+                return Ok(model);
             }
             catch (Exception e)
             {
@@ -45,14 +42,19 @@ namespace API.Controllers
 
         // POST: UserController/Edit/5
         [HttpPut("Update")]
-        [CustomAuthorize(EnumsList.Role.User)]
-        public async Task<ActionResult> Update([FromBody] UserDto registration)
+        public async Task<ActionResult> Update([FromForm] UpdateModelDto updateModelDto)
         {
             try
             {
-                var res = await _userRepository.UpdateUser(registration);
+                var modelExist = await _modelRepository.GetModelById(updateModelDto.ModelID);
+                if (modelExist.ModelID > 0)
+                {
+                    var res = await _modelRepository.UpdateModel(updateModelDto);
 
-                return Ok();
+                    return Ok();
+                }
+
+                return BadRequest();
             }
             catch (Exception e)
             {
@@ -66,7 +68,7 @@ namespace API.Controllers
         {
             try
             {
-                var res = await _userRepository.DeleteUser(id);
+                var res = await _modelRepository.DeleteModel(id);
 
                 return Ok();
             }
@@ -76,14 +78,13 @@ namespace API.Controllers
             }
         }
 
-
         [CustomAuthorize(EnumsList.Role.Admin)]
-        [HttpGet("GetListUser")]
-        public async Task<ActionResult> GetListUser([FromQuery] UserRequestDto request)
+        [HttpGet("GetListModel")]
+        public async Task<ActionResult> GetListModel([FromQuery] ModelRequestDto request)
         {
             try
             {
-                var listUser = await _userRepository.GetListUser(request);
+                var listUser = await _modelRepository.GetListModel(request);
                 return Ok(listUser);
             }
             catch (Exception e)
@@ -92,12 +93,26 @@ namespace API.Controllers
             }
         }
 
-        [HttpPost("Register")]
-        public async Task<ActionResult> Register([FromBody] CreateUserDto request)
+        [HttpGet("GetListModelByUser")]
+        public async Task<ActionResult> GetListModelByUser([FromQuery] ModelRequestDto request)
         {
             try
             {
-                var data = await _userRepository.Register(request);
+                var listUser = await _modelRepository.GetListModelByUser(request);
+                return Ok(listUser);
+            }
+            catch (Exception e)
+            {
+                return BadRequest();
+            }
+        }
+
+        [HttpPost("AddModel")]
+        public async Task<ActionResult> AddModel([FromForm] CreateModelDto request)
+        {
+            try
+            {
+                var data = await _modelRepository.AddNewModel(request);
 
                 if (data == -1)
                 {
@@ -112,24 +127,5 @@ namespace API.Controllers
             }
         }
 
-        [HttpPost("Login")]
-        public async Task<ActionResult> Login([FromBody] LoginDto loginDto)
-        {
-            try
-            {
-                var useDto = new CreateUserDto()
-                {
-                    Email = loginDto.Email,
-                    Password = loginDto.Password,
-                };
-
-                var data = await _userRepository.Login(useDto);
-                return Ok(data);
-            }
-            catch (Exception e)
-            {
-                return StatusCode(500, e.Message);
-            }
-        }
     }
 }

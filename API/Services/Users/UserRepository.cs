@@ -77,6 +77,19 @@ namespace API.Services.Users
             var where = " 1=1";
             var oderBy = " UserID";
             var parameters = new DynamicParameters();
+
+            if (!String.IsNullOrEmpty(userRequestDto.KeySearch))
+            {
+                where += $" AND {userRequestDto.KeySearch} LIKE '%{userRequestDto.ValueSearch}%' ";
+            }
+            if (!String.IsNullOrEmpty(userRequestDto.SortBy))
+            {
+                oderBy = $" {userRequestDto.SortBy} ";
+            }
+            if (userRequestDto.Desc)
+            {
+                oderBy += " DESC ";
+            }
             //parameters.Add("IsDelete", 0);
 
             using (var conn = new SqlConnection(_context.ConnectionString))

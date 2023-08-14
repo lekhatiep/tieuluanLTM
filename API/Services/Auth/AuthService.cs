@@ -113,7 +113,7 @@ namespace API.Services.Auth
             newUser.UserName = newUser.Email;
             newUser.Password = AESEncryption.Encrypt(userDto.Password);
             newUser.CreatedDate = DateTime.Now;
-
+            newUser.IsDelete = false;
             
             try
             {
