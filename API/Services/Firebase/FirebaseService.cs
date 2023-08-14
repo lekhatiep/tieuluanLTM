@@ -23,7 +23,7 @@ namespace API.Services.Firebase
             _env = env;
             _config = configuration;
         }
-        public async Task<string> UploadFile(FileUploadDto model)
+        public async Task<string> UploadFileAsync(FileUploadDto model)
         {
             string ApiKey = _config.GetValue<string>("Firebase:apiKey");
             string Bucket = _config.GetValue<string>("Firebase:bucket");//"ltmtieuluan.appspot.com";

@@ -1,5 +1,6 @@
 using API.Data;
 using API.Services.Auth;
+using API.Services.Catalog;
 using API.Services.Firebase;
 using API.Services.RoboFlow;
 using API.Services.Users;
@@ -29,6 +30,7 @@ namespace API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddHttpContextAccessor();
             services.AddCors(c =>
             {
                 c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin());
@@ -42,6 +44,7 @@ namespace API
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IRoboFlowService, RoboFlowService>();
             services.AddScoped<IFirebaseService, FirebaseService>();
+            services.AddScoped<IModelRepository, ModelRepository>();
             #endregion Service API
 
             services.AddControllers();

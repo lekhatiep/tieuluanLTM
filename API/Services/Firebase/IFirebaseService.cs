@@ -5,6 +5,6 @@ namespace API.Services.Firebase
 {
     public interface IFirebaseService
     {
-        Task<string> UploadFile(FileUploadDto fileUpload);
+        Task<string> UploadFileAsync(FileUploadDto fileUpload);
     }
 }

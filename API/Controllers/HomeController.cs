@@ -40,7 +40,8 @@ namespace API.Controllers
         {
             try
             {
-                var ps =  await firebaseService.UploadFile(uploadDto);
+                //string json = System.Text.Json.JsonSerializer.Serialize(uploadDto);
+                var ps =  await firebaseService.UploadFileAsync(uploadDto);
                 return Ok(ps);
             }
             catch (Exception e)

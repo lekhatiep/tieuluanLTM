@@ -8,7 +8,11 @@ namespace API.Dto.Auth
 
         public string SortBy { get; set; }
 
+        public bool Desc { get; set; }
         //Filter
         public string KeySearch { get; set; }
+
+        //Value
+        public string ValueSearch { get; set; }
     }
 }
