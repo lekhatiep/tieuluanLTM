@@ -6,11 +6,13 @@ using API.Helper;
 using API.Services.Auth;
 using AutoMapper;
 using Dapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace API.Services.Users
@@ -22,17 +24,20 @@ namespace API.Services.Users
         private readonly IAuthService _authService;
         private readonly IMapper _mapper;
         private readonly AppDbContext _appDbContext;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public UserRepository(DapperContext context,
             IAuthService authService,
              IMapper mapper,
-             AppDbContext appDbContext
+             AppDbContext appDbContext,
+             IHttpContextAccessor httpContextAccessor
             )
         {
             _context = context;
             _authService = authService;
             _mapper = mapper;
             _appDbContext = appDbContext;
+            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task<int> DeleteUser(int id)
@@ -145,6 +150,39 @@ namespace API.Services.Users
                 }
 
                 var userDto = _mapper.Map<Registration, UserDto>(user);
+                return userDto;
+            }
+
+            return new UserDto();
+        }
+
+        public Task<int> TotalRecord(UserRequestDto userRequestDto)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<UserDto> CurrentUser()
+        {
+            var identity = _httpContextAccessor.HttpContext.User.Identity as ClaimsIdentity;
+            var userID = 0;
+
+            if (identity != null)
+            {
+                userID = int.Parse(identity.FindFirst("id").Value);
+            }
+
+            if (userID > 0)
+            {
+                var user = await _appDbContext.Registration.Where(x => x.UserID == userID).FirstOrDefaultAsync();
+
+                if (user == null)
+                {
+                    return new UserDto();
+                }
+
+                var userDto = _mapper.Map<Registration, UserDto>(user);
+
+                userDto.Password = AESEncryption.Decrypt(user.Password);
                 return userDto;
             }
 

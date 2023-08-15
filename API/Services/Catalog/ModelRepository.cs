@@ -126,7 +126,7 @@ namespace API.Services.Catalog
             return -1;
         }
 
-        public async Task<List<ListModelDto>> GetListModel(ModelRequestDto modelRequest)
+        public async Task<PagedList<ListModelDto>> GetListModel(ModelRequestDto modelRequest)
         {
             var select = " rm.ModelID ModelID, rm.UserID, uf.Path ImgPath, rm.Name, rm.TypeName, rm.IsDelete, rm.CreatedDate ";
             var from = @" RoboModel rm inner join UploadFile uf on rm.ModelID = uf.ModelID ";
@@ -171,7 +171,6 @@ namespace API.Services.Catalog
             {
                 oderBy += " DESC ";
             }
-            parameters.Add("IsDelete", 0);
 
             using (var conn = new SqlConnection(_dapperContext.ConnectionString))
             {
@@ -180,7 +179,7 @@ namespace API.Services.Catalog
             }
         }
 
-        public async Task<List<ListModelDto>> GetListModelByUser(ModelRequestDto modelRequest)
+        public async Task<PagedList<ListModelDto>> GetListModelByUser(ModelRequestDto modelRequest)
         {
             var identity = _httpContextAccessor.HttpContext.User.Identity as ClaimsIdentity;
             var userID = 0;
@@ -232,6 +231,7 @@ namespace API.Services.Catalog
             using (var conn = new SqlConnection(_dapperContext.ConnectionString))
             {
                 var data = await conn.QueryPagingAsync<ListModelDto>(select, from, where, oderBy, parameters, modelRequest.PageNumber, modelRequest.PageSize);
+                
                 return data;
             }
         }
@@ -252,7 +252,7 @@ namespace API.Services.Catalog
 
                 var query = from m in model
                            join uf in uploadFile on m.ModelID equals uf.ModelID
-                           where m.ModelID == id && m.UserID == userID
+                           where m.ModelID == id && m.UserID == userID && m.IsDelete == false
                            select new ModelDto
                            {
                                ModelID = m.ModelID,
@@ -334,6 +334,69 @@ namespace API.Services.Catalog
                 return modelDto;
             }
             return new ModelDto();
+        }
+
+        public async Task<int> TotalRecord(ModelRequestDto modelRequest, bool isCountForUser)
+        {
+            var identity = _httpContextAccessor.HttpContext.User.Identity as ClaimsIdentity;
+            var userID = 0;
+
+            if (identity != null)
+            {
+                userID = int.Parse(identity.FindFirst("id").Value);
+            }
+
+            var from = @" RoboModel rm inner join UploadFile uf on rm.ModelID = uf.ModelID ";
+            var where = $" 1=1 ";
+
+            if (isCountForUser)
+            {
+                where += $" AND rm.UserID = {userID} ";
+            }
+
+            var oderBy = " rm.ModelID ";
+            var parameters = new DynamicParameters();
+
+            if (!String.IsNullOrEmpty(modelRequest.KeySearch))
+            {
+                if (modelRequest.KeySearch == "ModelID")
+                {
+                    where += $" AND rm.ModelID LIKE '%{modelRequest.ValueSearch}%' ";
+                }
+                else if (modelRequest.KeySearch == "UserID")
+                {
+                    where += $" AND rm.UserID LIKE '%{modelRequest.ValueSearch}%' ";
+                }
+                else
+                {
+                    where += $" AND {modelRequest.KeySearch} LIKE '%{modelRequest.ValueSearch}%' ";
+                }
+            }
+
+            if (!String.IsNullOrEmpty(modelRequest.SortBy))
+            {
+                if (modelRequest.SortBy == "ModelID")
+                {
+                    oderBy = " ModelID ";
+                }
+                else
+                {
+                    oderBy = $" {modelRequest.SortBy} ";
+                }
+            }
+            if (modelRequest.Desc)
+            {
+                oderBy += " DESC ";
+            }
+            parameters.Add("IsDelete", 0);
+
+            var query = $"SELECT COUNT(1) FROM  {from} WHERE {where}";
+
+            using (var cn = _dapperContext.CreateConnection())
+            {
+                var rs = await cn.QueryFirstOrDefaultAsync<int>(query);
+                return rs;
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using API.Dto.Catalog;
+﻿using API.Common.Paging;
+using API.Dto.Catalog;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -10,7 +11,8 @@ namespace API.Services.Catalog
         Task<int> DeleteModel(int id);
         Task<ModelDto> UpdateModel (UpdateModelDto model);
         Task<ModelDto> GetModelById(int id);
-        Task<List<ListModelDto>> GetListModel(ModelRequestDto modelRequest);
-        Task<List<ListModelDto>> GetListModelByUser(ModelRequestDto modelRequest);
+        Task<PagedList<ListModelDto>> GetListModel(ModelRequestDto modelRequest);
+        Task<PagedList<ListModelDto>> GetListModelByUser(ModelRequestDto modelRequest);
+        Task<int> TotalRecord(ModelRequestDto modelRequest, bool isCountForUser = false);
     }
 }

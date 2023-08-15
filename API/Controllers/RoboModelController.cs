@@ -1,4 +1,5 @@
-﻿using API.CustomAttribute;
+﻿using API.Common.ReponseDto;
+using API.CustomAttribute;
 using API.Dto.Catalog;
 using API.Enums;
 using API.Services.Catalog;
@@ -84,8 +85,11 @@ namespace API.Controllers
         {
             try
             {
-                var listUser = await _modelRepository.GetListModel(request);
-                return Ok(listUser);
+                var listModel = await _modelRepository.GetListModel(request);
+                var totalRecord = await _modelRepository.TotalRecord(request);
+
+                var rs = new ResponsePagedList<ListModelDto>(listModel, totalRecord);
+                return Ok(rs);
             }
             catch (Exception e)
             {
@@ -98,8 +102,12 @@ namespace API.Controllers
         {
             try
             {
-                var listUser = await _modelRepository.GetListModelByUser(request);
-                return Ok(listUser);
+                var listModel = await _modelRepository.GetListModelByUser(request);
+                var totalRecord = await _modelRepository.TotalRecord(request, isCountForUser: true);
+
+                var rs = new ResponsePagedList<ListModelDto>(listModel, totalRecord);
+
+                return Ok(rs);
             }
             catch (Exception e)
             {
