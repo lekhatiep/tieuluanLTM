@@ -14,5 +14,7 @@ namespace API.Services.Users
         Task<List<ListUserDto>> GetListUser(UserRequestDto userRequestDto);
         Task<List<string>> GetAllPermissionByUserId(int id);
         Task<AuthReponseDto> Login(CreateUserDto userDto);
+        Task<int> TotalRecord(UserRequestDto userRequestDto);
+        Task<UserDto> CurrentUser();
     }
 }

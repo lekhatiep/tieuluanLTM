@@ -131,5 +131,21 @@ namespace API.Controllers
                 return StatusCode(500, e.Message);
             }
         }
+
+        [Authorize]
+        [HttpGet("GetCurrentUser")]
+        public async Task<ActionResult> GetCurrentUser()
+        {
+            try
+            {
+                var user = await _userRepository.CurrentUser();
+                return Ok(user);
+            }
+            catch (Exception e)
+            {
+
+                return BadRequest(e.Message);
+            }
+        }
     }
 }
