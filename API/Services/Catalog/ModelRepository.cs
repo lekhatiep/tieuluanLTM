@@ -335,6 +335,8 @@ namespace API.Services.Catalog
                         media.IsDelete = true;
                         await _context.SaveChangesAsync();
                     }
+
+                    await _firebaseService.DeleteFileAsync(media.FileName);
                 }
 
                 await _context.SaveChangesAsync();

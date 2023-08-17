@@ -23,6 +23,7 @@ namespace API.Services.Firebase
             _env = env;
             _config = configuration;
         }
+
         public async Task<string> UploadFileAsync(FileUploadDto model)
         {
             string ApiKey = _config.GetValue<string>("Firebase:apiKey");
@@ -84,6 +85,41 @@ namespace API.Services.Firebase
             }
 
             return "";
+        }
+
+        public async Task<int> DeleteFileAsync(string fileName)
+        {
+            var storage = await FirebaseStorageCustom();
+
+            try
+            {
+                await storage.Child("images").Child(fileName).DeleteAsync();
+            }
+            catch (Exception e)
+            {
+                var msg = e.Message;
+                return -1;
+            }
+
+            return 1;
+        }
+
+
+        private async Task<FirebaseStorage> FirebaseStorageCustom()
+        {
+            string ApiKey = _config.GetValue<string>("Firebase:apiKey");
+            string Bucket = _config.GetValue<string>("Firebase:bucket");//"ltmtieuluan.appspot.com";
+            string AuthEmail = _config.GetValue<string>("Firebase:authEmail");// "tieplk@gmail.com";
+            string AuthPassword = _config.GetValue<string>("Firebase:authPassword"); //"Tieplk@123";
+
+            var auth = new FirebaseAuthProvider(new FirebaseConfig(ApiKey));
+            var loginInfo = await auth.SignInWithEmailAndPasswordAsync(AuthEmail, AuthPassword);
+            var storage = new FirebaseStorage(Bucket, new FirebaseStorageOptions
+            {
+                AuthTokenAsyncFactory = () => Task.FromResult(loginInfo.FirebaseToken),
+                ThrowOnCancel = true
+            });
+            return storage;
         }
     }
 }
