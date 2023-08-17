@@ -129,7 +129,7 @@ namespace API.Services.Catalog
         public async Task<PagedList<ListModelDto>> GetListModel(ModelRequestDto modelRequest)
         {
             var select = " rm.ModelID ModelID, rm.UserID, uf.Path ImgPath, rm.Name, rm.TypeName, rm.IsDelete, rm.CreatedDate ";
-            var from = @" RoboModel rm inner join UploadFile uf on rm.ModelID = uf.ModelID ";
+            var from = @" RoboModel rm left join UploadFile uf on rm.ModelID = uf.ModelID ";
             var where = " 1=1 ";
             var oderBy = " rm.ModelID ";
             var parameters = new DynamicParameters();
@@ -190,8 +190,8 @@ namespace API.Services.Catalog
             }
 
             var select = " rm.ModelID ModelID, rm.UserID, uf.Path ImgPath, rm.Name, rm.TypeName, rm.IsDelete, rm.CreatedDate ";
-            var from = @" RoboModel rm inner join UploadFile uf on rm.ModelID = uf.ModelID ";
-            var where = $" 1=1 AND rm.UserID = {userID}";
+            var from = @" RoboModel rm left join UploadFile uf on rm.ModelID = uf.ModelID ";
+            var where = $" 1=1 AND rm.UserID = {userID} AND rm.IsDelete = 0 ";
             var oderBy = " rm.ModelID ";
             var parameters = new DynamicParameters();
 
@@ -346,12 +346,12 @@ namespace API.Services.Catalog
                 userID = int.Parse(identity.FindFirst("id").Value);
             }
 
-            var from = @" RoboModel rm inner join UploadFile uf on rm.ModelID = uf.ModelID ";
+            var from = @" RoboModel rm left join UploadFile uf on rm.ModelID = uf.ModelID ";
             var where = $" 1=1 ";
 
             if (isCountForUser)
             {
-                where += $" AND rm.UserID = {userID} ";
+                where += $" AND rm.UserID = {userID} AND rm.IsDelete = 0 ";
             }
 
             var oderBy = " rm.ModelID ";

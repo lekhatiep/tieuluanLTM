@@ -34,13 +34,13 @@ namespace API.Services.Firebase
             Stream ms = null;
             if (file.Length > 0)
             {
+                //IF want to save file in server
+                //string path = Path.Combine(_env.WebRootPath, $"images/");
 
-                string path = Path.Combine(_env.WebRootPath, $"images/");
-
-                if (!Directory.Exists(path))
-                {
-                    Directory.CreateDirectory(path);
-                }
+                //if (!Directory.Exists(path))
+                //{
+                //    Directory.CreateDirectory(path);
+                //}
 
                 //1--Save file and read
                 //using (fs = new FileStream(Path.Combine(path, file.FileName), FileMode.Create))
