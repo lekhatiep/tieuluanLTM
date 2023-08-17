@@ -44,9 +44,9 @@ namespace API.Services.Users
         {
             if (id > 0)
             {
-                var user = await GetUserById(id);
+                var user = await _appDbContext.Registration.Where(x => x.UserID == id).FirstOrDefaultAsync();
 
-                if (user.UserID > 0)
+                if (user != null)
                 {
                     //using (var conn = _context.CreateConnection())
                     //{
