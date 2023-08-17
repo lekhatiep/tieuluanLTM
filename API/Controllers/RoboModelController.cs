@@ -52,7 +52,7 @@ namespace API.Controllers
                 {
                     var res = await _modelRepository.UpdateModel(updateModelDto);
 
-                    return Ok();
+                    return Ok(1);
                 }
 
                 return BadRequest();
@@ -71,7 +71,7 @@ namespace API.Controllers
             {
                 var res = await _modelRepository.DeleteModel(id);
 
-                return Ok();
+                return Ok(1);
             }
             catch
             {
