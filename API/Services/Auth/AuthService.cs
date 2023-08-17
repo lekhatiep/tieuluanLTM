@@ -48,7 +48,7 @@ namespace API.Services.Auth
 
             var user = await _context.Registration
                       .Where(x => x.Password.ToLower().Contains(login.Password.ToLower())
-                      &&  x.Email.ToLower().Contains(login.Email.ToLower()))
+                      &&  x.Email.ToLower().Contains(login.Email.ToLower()) && x.IsDelete == false)
                       .FirstOrDefaultAsync();
 
             if (user is null)

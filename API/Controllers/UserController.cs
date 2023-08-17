@@ -52,7 +52,7 @@ namespace API.Controllers
             {
                 var res = await _userRepository.UpdateUser(registration);
 
-                return Ok();
+                return Ok(1);
             }
             catch (Exception e)
             {
@@ -68,7 +68,7 @@ namespace API.Controllers
             {
                 var res = await _userRepository.DeleteUser(id);
 
-                return Ok();
+                return Ok(1);
             }
             catch
             {
