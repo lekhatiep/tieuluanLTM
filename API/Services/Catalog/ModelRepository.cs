@@ -105,8 +105,8 @@ namespace API.Services.Catalog
         {
             if (id > 0)
             {
-                var model = await GetModelById(id);
-                
+                var model = await _context.RoboModel.Where(x => x.ModelID == id).FirstOrDefaultAsync();
+
                 if (model != null)
                 {
                     var uploadFile =  await _context.UploadFile.Where(x => x.ModelID == model.ModelID).FirstOrDefaultAsync();
@@ -191,7 +191,7 @@ namespace API.Services.Catalog
 
             var select = " rm.ModelID ModelID, rm.UserID, uf.Path ImgPath, rm.Name, rm.TypeName, rm.IsDelete, rm.CreatedDate ";
             var from = @" RoboModel rm left join UploadFile uf on rm.ModelID = uf.ModelID ";
-            var where = $" 1=1 AND rm.UserID = {userID} AND rm.IsDelete = 0 ";
+            var where = $" 1=1 AND rm.UserID = {userID} AND rm.IsDelete = 0  AND uf.IsDelete = 0";
             var oderBy = " rm.ModelID ";
             var parameters = new DynamicParameters();
 
@@ -360,7 +360,7 @@ namespace API.Services.Catalog
 
             if (isCountForUser)
             {
-                where += $" AND rm.UserID = {userID} AND rm.IsDelete = 0 ";
+                where += $" AND rm.UserID = {userID} AND rm.IsDelete = 0 AND uf.IsDelete = 0 ";
             }
 
             var oderBy = " rm.ModelID ";
