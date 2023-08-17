@@ -188,5 +188,37 @@ namespace API.Services.Users
 
             return new UserDto();
         }
+
+        public async Task<List<string>> GetListUserRoleName()
+        {
+            var identity = _httpContextAccessor.HttpContext.User.Identity as ClaimsIdentity;
+            var userID = 0;
+
+            if (identity != null)
+            {
+                userID = int.Parse(identity.FindFirst("id").Value);
+            }
+
+            var listRoleName = new List<string>();
+            if (userID > 0)
+            {
+                var listRegRole = await _appDbContext.RegistrationRole.Where(x => x.UserID == userID).ToListAsync();
+
+                if (listRegRole.Count > 0)
+                {
+                    foreach (var item in listRegRole)
+                    {
+                        var role = await _appDbContext.Role.Where(x => x.RoleID == item.RoleID).FirstOrDefaultAsync();
+
+                        if (role != null)
+                        {
+                            listRoleName.Add(role.Name);
+                        }
+                    }
+                }
+            }
+
+            return listRoleName;
+        }
     }
 }
