@@ -33,7 +33,7 @@ namespace API
             services.AddHttpContextAccessor();
             services.AddCors(c =>
             {
-                c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+                c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin());
             });
 
             services.AddSingleton<DapperContext>();

@@ -147,5 +147,22 @@ namespace API.Controllers
                 return BadRequest(e.Message);
             }
         }
+
+
+        [Authorize]
+        [HttpGet("GetListRoleName")]
+        public async Task<ActionResult> GetListRoleName()
+        {
+            try
+            {
+                var data = await _userRepository.GetListUserRoleName();
+                return Ok(data);
+            }
+            catch (Exception e)
+            {
+
+                return BadRequest(e.Message);
+            }
+        }
     }
 }

@@ -16,5 +16,6 @@ namespace API.Services.Users
         Task<AuthReponseDto> Login(CreateUserDto userDto);
         Task<int> TotalRecord(UserRequestDto userRequestDto);
         Task<UserDto> CurrentUser();
+        Task<List<string>> GetListUserRoleName();
     }
 }
