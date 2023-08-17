@@ -251,16 +251,17 @@ namespace API.Services.Catalog
                 }
 
                 var query = from m in model
-                           join uf in uploadFile on m.ModelID equals uf.ModelID
-                           where m.ModelID == id && m.UserID == userID && m.IsDelete == false
+                           join uf in uploadFile on m.ModelID equals uf.ModelID into joinTable
+                           from jt in joinTable.DefaultIfEmpty()
+                           where m.ModelID == id && m.UserID == userID && m.IsDelete == false && jt.IsDelete == false
                            select new ModelDto
                            {
                                ModelID = m.ModelID,
                                UserID = m.UserID,
-                               MediaID = uf.MediaID,
+                               MediaID = jt.MediaID,
                                Name = m.Name,
                                TypeName = m.TypeName,
-                               PathImage = uf.Path,
+                               PathImage = jt.Path,
                                IsDelete = m.IsDelete,
                                CreatedDate = m.CreatedDate
                            };
@@ -324,6 +325,14 @@ namespace API.Services.Catalog
                         };
 
                         await _context.UploadFile.AddAsync(uploadFile);
+                        await _context.SaveChangesAsync();
+                    }
+
+                    //Delete old media
+                    var media = _context.UploadFile.Where(x => x.ModelID == model.ModelID).FirstOrDefault();
+                    if (media != null)
+                    {
+                        media.IsDelete = true;
                         await _context.SaveChangesAsync();
                     }
                 }
