@@ -50,7 +50,7 @@ namespace API.Services.Catalog
             {
                 userID = int.Parse(identity.FindFirst("id").Value);
             }
-    
+
             try
             {
 
@@ -62,31 +62,34 @@ namespace API.Services.Catalog
                 await _context.RoboModel.AddAsync(newModel);
                 await _context.SaveChangesAsync();
 
-                if (modelDto.File.Length > 0 && newModel.ModelID > 0)
-                {
-                    var uploadDto = new FileUploadDto()
+                if (modelDto.File != null) {
+
+                    if (modelDto.File.Length > 0 && newModel.ModelID > 0)
                     {
-
-                        File = modelDto.File
-                    };
-
-                    var strPath = await _firebaseService.UploadFileAsync(uploadDto);
-
-                    if (!string.IsNullOrEmpty(strPath))
-                    {
-                        var uploadFile = new API.Entities.Catalog.UploadFile
+                        var uploadDto = new FileUploadDto()
                         {
-                            UserID = userID,
-                            ModelID = newModel.ModelID,
-                            Path = strPath,
-                            FileName = modelDto.File.FileName,
-                            CreatedDate = DateTime.Now
+
+                            File = modelDto.File
                         };
 
-                        await _context.UploadFile.AddAsync(uploadFile);
-                        await _context.SaveChangesAsync();
+                        var strPath = await _firebaseService.UploadFileAsync(uploadDto);
+
+                        if (!string.IsNullOrEmpty(strPath))
+                        {
+                            var uploadFile = new API.Entities.Catalog.UploadFile
+                            {
+                                UserID = userID,
+                                ModelID = newModel.ModelID,
+                                Path = strPath,
+                                FileName = modelDto.File.FileName,
+                                CreatedDate = DateTime.Now
+                            };
+
+                            await _context.UploadFile.AddAsync(uploadFile);
+                            await _context.SaveChangesAsync();
+                        }
                     }
-                }
+                }             
 
                  rs = 1;
 
@@ -195,7 +198,7 @@ namespace API.Services.Catalog
 
             var select = " rm.ModelID ModelID, rm.UserID, uf.Path ImgPath, rm.Name, rm.TypeName, rm.IsDelete, rm.CreatedDate ";
             var from = @" RoboModel rm left join UploadFile uf on rm.ModelID = uf.ModelID ";
-            var where = $" 1=1 AND rm.UserID = {userID} AND rm.IsDelete = 0  AND uf.IsDelete = 0";
+            var where = $" 1=1 AND rm.UserID = {userID} AND rm.IsDelete = 0  AND ISNULL(uf.IsDelete,0) = 0 ";
             var oderBy = " rm.ModelID ";
             var parameters = new DynamicParameters();
 
@@ -375,7 +378,7 @@ namespace API.Services.Catalog
 
             if (isCountForUser)
             {
-                where += $" AND rm.UserID = {userID} AND rm.IsDelete = 0 AND uf.IsDelete = 0 ";
+                where += $" AND rm.UserID = {userID} AND rm.IsDelete = 0 AND ISNULL(uf.IsDelete,0) = 0 ";
             }
 
             var oderBy = " rm.ModelID ";
