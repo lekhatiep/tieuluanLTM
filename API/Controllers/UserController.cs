@@ -45,7 +45,7 @@ namespace API.Controllers
 
         // POST: UserController/Edit/5
         [HttpPut("Update")]
-        [CustomAuthorize(EnumsList.Role.User)]
+        [Authorize]
         public async Task<ActionResult> Update([FromBody] UserDto registration)
         {
             try
@@ -61,6 +61,7 @@ namespace API.Controllers
         }
 
         // POST: UserController/Delete/5
+        [CustomAuthorize(EnumsList.Role.Admin)]
         [HttpDelete("Delete/{id}")]
         public async Task<ActionResult> Delete(int id)
         {

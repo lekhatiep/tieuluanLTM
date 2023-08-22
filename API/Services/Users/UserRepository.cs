@@ -127,7 +127,10 @@ namespace API.Services.Users
                     return new UserDto(); ;
                 }
 
-                registration.Password = AESEncryption.Encrypt(registration.Password);
+                if (!string.IsNullOrEmpty(registration.Password))
+                {
+                    registration.Password = AESEncryption.Encrypt(registration.Password);
+                }                
 
                 _mapper.Map(registration, reg);
                 await _appDbContext.SaveChangesAsync();
