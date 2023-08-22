@@ -153,19 +153,23 @@ namespace API.Services.Catalog
 
             if (!String.IsNullOrEmpty(modelRequest.SortBy))
             {
-                if (modelRequest.SortBy == "ModelID")
+                if (modelRequest.SortBy.ToLower() == "modelid")
                 {
                     oderBy = " rm.ModelID ";
                 }
-                else if (modelRequest.SortBy == "UserID")
+                else if (modelRequest.SortBy.ToLower() == "userid")
                 {
                     oderBy = " rm.UserID ";
+                }
+                else if (modelRequest.SortBy.ToLower() == "createddate")
+                {
+                    oderBy = " rm.CreatedDate ";
                 }
                 else
                 {
                     oderBy = $" {modelRequest.SortBy} ";
                 }
-                
+
             }
             if (modelRequest.Desc)
             {
@@ -211,17 +215,26 @@ namespace API.Services.Catalog
                 }
             }
 
-            if (!String.IsNullOrEmpty(modelRequest.SortBy))
+            if (!string.IsNullOrEmpty(modelRequest.SortBy))
             {
-                if (modelRequest.SortBy == "ModelID")
+                if (modelRequest.SortBy.ToLower() == "modelid")
                 {
-                    oderBy = " ModelID ";
+                    oderBy = " rm.ModelID ";
+                }
+                else if (modelRequest.SortBy.ToLower() == "userid")
+                {
+                    oderBy = " rm.UserID ";
+                }
+                else if (modelRequest.SortBy.ToLower() == "createddate")
+                {
+                    oderBy = " rm.CreatedDate ";
                 }
                 else
                 {
                     oderBy = $" {modelRequest.SortBy} ";
                 }
-            }
+            }          
+
             if (modelRequest.Desc)
             {
                 oderBy += " DESC ";
