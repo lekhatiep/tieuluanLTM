@@ -133,7 +133,7 @@ namespace API.Services.Catalog
         {
             var select = " rm.ModelID ModelID, rm.UserID, uf.Path ImgPath, rm.Name, rm.TypeName, rm.IsDelete, rm.CreatedDate ";
             var from = @" RoboModel rm left join UploadFile uf on rm.ModelID = uf.ModelID ";
-            var where = " 1=1 ";
+            var where = " 1=1 AND ISNULL(uf.IsDelete,0) = 0 ";
             var oderBy = " rm.ModelID ";
             var parameters = new DynamicParameters();
 
@@ -374,11 +374,11 @@ namespace API.Services.Catalog
             }
 
             var from = @" RoboModel rm left join UploadFile uf on rm.ModelID = uf.ModelID ";
-            var where = $" 1=1 ";
+            var where = $" 1=1 AND ISNULL(uf.IsDelete,0) = 0 ";
 
             if (isCountForUser)
             {
-                where += $" AND rm.UserID = {userID} AND rm.IsDelete = 0 AND ISNULL(uf.IsDelete,0) = 0 ";
+                where += $" AND rm.UserID = {userID} AND rm.IsDelete = 0 ";
             }
 
             var oderBy = " rm.ModelID ";
