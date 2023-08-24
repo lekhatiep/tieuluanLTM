@@ -267,22 +267,22 @@ namespace API.Services.Catalog
                 }
 
                 var query = from m in model
-                           join uf in uploadFile on m.ModelID equals uf.ModelID into joinTable
-                           from jt in joinTable.DefaultIfEmpty()
-                           where m.ModelID == id && m.UserID == userID && m.IsDelete == false && jt.IsDelete == false
-                           select new ModelDto
-                           {
-                               ModelID = m.ModelID,
-                               UserID = m.UserID,
-                               MediaID = jt.MediaID,
-                               Name = m.Name,
-                               TypeName = m.TypeName,
-                               PathImage = jt.Path,
-                               IsDelete = m.IsDelete,
-                               CreatedDate = m.CreatedDate
-                           };
-                var data = await query.FirstOrDefaultAsync();
+                            join u in uploadFile on m.ModelID equals u.ModelID into joinTable
+                            from jt in joinTable.Where(x=>x.IsDelete == false).DefaultIfEmpty()
+                            where m.ModelID == id && m.UserID == userID  && m.IsDelete == false
+                            select new ModelDto
+                            {
+                                ModelID = m.ModelID,
+                                UserID = m.UserID,
+                                MediaID = jt != null ? jt.MediaID : 0,
+                                Name = m.Name,
+                                TypeName = m.TypeName,
+                                PathImage = jt != null ? jt.Path : null,
+                                IsDelete = m.IsDelete,
+                                CreatedDate = m.CreatedDate
+                            };
 
+                var data = await query.FirstOrDefaultAsync();
                 if (data == null)
                 {
                     return new ModelDto();
