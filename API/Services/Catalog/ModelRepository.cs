@@ -345,7 +345,7 @@ namespace API.Services.Catalog
                     }
 
                     //Delete old media
-                    var media = _context.UploadFile.Where(x => x.ModelID == model.ModelID).FirstOrDefault();
+                    var media = await _context.UploadFile.Where(x => x.ModelID == model.ModelID && x.IsDelete == false).FirstOrDefaultAsync();
                     if (media != null)
                     {
                         media.IsDelete = true;
