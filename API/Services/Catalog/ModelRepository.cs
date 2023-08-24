@@ -132,8 +132,8 @@ namespace API.Services.Catalog
         public async Task<PagedList<ListModelDto>> GetListModel(ModelRequestDto modelRequest)
         {
             var select = " rm.ModelID ModelID, rm.UserID, uf.Path ImgPath, rm.Name, rm.TypeName, rm.IsDelete, rm.CreatedDate ";
-            var from = @" RoboModel rm left join UploadFile uf on rm.ModelID = uf.ModelID ";
-            var where = " 1=1 AND ISNULL(uf.IsDelete,0) = 0 ";
+            var from = @" RoboModel rm left join UploadFile uf on rm.ModelID = uf.ModelID AND ISNULL(uf.IsDelete,0) = 0 ";
+            var where = " 1=1 ";
             var oderBy = " rm.ModelID ";
             var parameters = new DynamicParameters();
 
@@ -146,6 +146,10 @@ namespace API.Services.Catalog
                 else if(modelRequest.KeySearch == "UserID")
                 {
                     where += $" AND rm.UserID LIKE '%{modelRequest.ValueSearch}%' ";
+                }
+                else if (modelRequest.KeySearch == "CreatedDate")
+                {
+                    where += $" AND CONVERT(date,rm.CreatedDate) = '{modelRequest.ValueSearch}' ";
                 }
                 else
                 {
@@ -197,8 +201,8 @@ namespace API.Services.Catalog
             }
 
             var select = " rm.ModelID ModelID, rm.UserID, uf.Path ImgPath, rm.Name, rm.TypeName, rm.IsDelete, rm.CreatedDate ";
-            var from = @" RoboModel rm left join UploadFile uf on rm.ModelID = uf.ModelID ";
-            var where = $" 1=1 AND rm.UserID = {userID} AND rm.IsDelete = 0  AND ISNULL(uf.IsDelete,0) = 0 ";
+            var from = @" RoboModel rm left join UploadFile uf on rm.ModelID = uf.ModelID AND ISNULL(uf.IsDelete,0) = 0 ";
+            var where = $" 1=1 AND rm.UserID = {userID} AND rm.IsDelete = 0 ";
             var oderBy = " rm.ModelID ";
             var parameters = new DynamicParameters();
 
@@ -342,17 +346,17 @@ namespace API.Services.Catalog
 
                         await _context.UploadFile.AddAsync(uploadFile);
                         await _context.SaveChangesAsync();
-                    }
 
-                    //Delete old media
-                    var media = await _context.UploadFile.Where(x => x.ModelID == model.ModelID && x.IsDelete == false).FirstOrDefaultAsync();
-                    if (media != null)
-                    {
-                        media.IsDelete = true;
-                        await _context.SaveChangesAsync();
-                    }
+                        //Delete other media
 
-                    await _firebaseService.DeleteFileAsync(media.FileName);
+                        var media = await _context.UploadFile.Where(x => x.ModelID == model.ModelID && x.IsDelete == false && x.MediaID != uploadFile.MediaID).FirstOrDefaultAsync();
+                        if (media != null)
+                        {
+                            media.IsDelete = true;
+                            await _context.SaveChangesAsync();
+                            await _firebaseService.DeleteFileAsync(media.FileName);
+                        }                       
+                    }                 
                 }
 
                 await _context.SaveChangesAsync();
@@ -373,8 +377,8 @@ namespace API.Services.Catalog
                 userID = int.Parse(identity.FindFirst("id").Value);
             }
 
-            var from = @" RoboModel rm left join UploadFile uf on rm.ModelID = uf.ModelID ";
-            var where = $" 1=1 AND ISNULL(uf.IsDelete,0) = 0 ";
+            var from = @" RoboModel rm left join UploadFile uf on rm.ModelID = uf.ModelID AND ISNULL(uf.IsDelete,0) = 0";
+            var where = $" 1=1 ";
 
             if (isCountForUser)
             {
@@ -393,6 +397,10 @@ namespace API.Services.Catalog
                 else if (modelRequest.KeySearch == "UserID")
                 {
                     where += $" AND rm.UserID LIKE '%{modelRequest.ValueSearch}%' ";
+                }
+                else if (modelRequest.KeySearch == "CreatedDate")
+                {
+                    where += $" AND CONVERT(date,rm.CreatedDate) = '{modelRequest.ValueSearch}' ";
                 }
                 else
                 {
